@@ -153,11 +153,7 @@ void MyHardestLayer::populateList() {
         query += m_levelIDs[i];
     }
 
-    log::info("Query: {}", query);
-    log::info("Search type: {}", (int)SearchType::Search);
-    
     auto searchObject = GJSearchObject::create(static_cast<SearchType>(10), query);
-    log::info("Search query after create: {}", searchObject->m_searchQuery);
     glm->getOnlineLevels(searchObject);
 }
 

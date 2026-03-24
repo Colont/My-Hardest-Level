@@ -6,7 +6,7 @@ using namespace geode::prelude;
 // Creates a struct to hold data about demons in GDDL
 struct GDDLDemon {
     int id;
-    int tier;
+    float tier;
     std::string name;
 };
 

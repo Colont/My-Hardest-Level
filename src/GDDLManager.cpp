@@ -1,4 +1,5 @@
 #include "GDDLManager.hpp"
+#include <Geode/binding_arm/FLAlertLayer.hpp>
 #include <sstream>
 using namespace geode::prelude;
 
@@ -54,6 +55,8 @@ void GDDLManager::load(
                 cell.erase(std::remove(cell.begin(), cell.end(), '"'), cell.end());
                 try { demon.tier = std::stof(cell); } catch (...) { continue; }
                 
+                log::info("Name: {} ID: {}, Tier: {}", demon.name, demon.id, demon.tier);
+               
                 demons.push_back(demon);
             
             }
