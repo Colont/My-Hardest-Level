@@ -3,5 +3,4 @@ This is a mod made for Geometry Dash that displays your Hardest Levels using the
 
 <img src="logo.png" width="150" alt="the mod's logo" />
 
-*Update logo.png to change your mod's icon (please)*
 
