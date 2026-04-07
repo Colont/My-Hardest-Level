@@ -1,8 +1,11 @@
 #include "MyHardestLayer.hpp"
 #include "GDDLManager.hpp"
+#include "RankManager.hpp"
+#include "RecommendLayer.hpp"
 #include <Geode/binding/LoadingCircle.hpp>
 #include <Geode/binding/GJSearchObject.hpp>
 #include <Geode/binding/CustomListView.hpp>
+ 
 using namespace geode::prelude;
 
 MyHardestLayer* MyHardestLayer::create() {
@@ -64,8 +67,6 @@ bool MyHardestLayer::init() {
         m_leftButton->setVisible(false);
         m_leftButton->setPosition({ 24.0f, screenSize.height / 2.0f });
         
-
-
         auto rightSprite = CCSprite::createWithSpriteFrameName("GJ_arrow_03_001.png");
         rightSprite->setFlipX(true);
         m_rightButton = CCMenuItemSpriteExtra::create(rightSprite, 
@@ -84,6 +85,11 @@ bool MyHardestLayer::init() {
         m_loadingCircle = LoadingCircle::create();
         m_loadingCircle->setParentLayer(this);
         m_loadingCircle->show();
+
+        auto reccomendSprite = CCSprite::createWithSpriteFrameName("gj_findBtn_001.png");
+        auto recommendButton = CCMenuItemSpriteExtra::create(reccomendSprite, this, menu_selector(MyHardestLayer::onRecommend));
+        recommendButton->setPosition({ screenSize.width - 50.0f, screenSize.height - 50.0f });
+        menu->addChild(recommendButton);
 
         GDDLManager::load(m_listener,
         [this]() {
@@ -114,6 +120,16 @@ bool MyHardestLayer::init() {
                     };
                     return findTier(a) > findTier(b);
                 });
+            
+            for (auto& id : m_levelIDs) {
+                log::info("Level ID in list: {}", id);
+            }
+            log::info("Total matched levels: {}", m_levelIDs.size());
+            RankManager::ranks.clear();
+            for (int i = 0; i < (int)m_levelIDs.size(); i++) {
+                RankManager::ranks[m_levelIDs[i]] = i + 1;
+            }
+            RankManager::active = true;
 
             populateList();
         },
@@ -131,7 +147,9 @@ bool MyHardestLayer::init() {
 
 // When user goes back, we want to cancel the web request if it hasn't finished loading yet to avoid potential crashes 
 void MyHardestLayer::onBack(CCObject*) {
-CCDirector::get()->popSceneWithTransition(0.5f, kPopTransitionFade);
+    RankManager::active = false;
+    RankManager::ranks.clear();
+    CCDirector::get()->popSceneWithTransition(0.5f, kPopTransitionFade);
 }
 
 // Called when the user hits esc, does the same thing as clicking the back button
@@ -153,7 +171,10 @@ void MyHardestLayer::populateList() {
         query += m_levelIDs[i];
     }
 
-    auto searchObject = GJSearchObject::create(static_cast<SearchType>(10), query);
+    log::info("Query string: {}", query);
+    log::info("Page: {}, showing {} to {}", m_page, start, end);
+
+    auto searchObject = GJSearchObject::create(static_cast<SearchType>(19), query);
     glm->getOnlineLevels(searchObject);
 }
 
@@ -213,7 +234,16 @@ void MyHardestLayer::onNextPage(CCObject*) {
     }
 }
 
+void MyHardestLayer::onRecommend(CCObject*) {
+    auto scene = RecommendLayer::create();
+    scene->setPosition({ CCDirector::get()->getWinSize().width, 0 });
+    scene->runAction(CCMoveTo::create(0.5f, { 0, 0 }));
+    this->addChild(scene);
+}
+
 MyHardestLayer::~MyHardestLayer() {
+    RankManager::active = false;
+    RankManager::ranks.clear();
     m_listener.cancel();
     auto glm = GameLevelManager::get();
     if (glm->m_levelManagerDelegate == this)

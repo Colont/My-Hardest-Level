@@ -30,6 +30,7 @@ class MyHardestLayer : public CCLayer, public LevelManagerDelegate {
         void setupPageInfo(gd::string, const char*) override; // called to update the page information
         void onPrevPage(CCObject*); // called when the user clicks the previous page button
         void onNextPage(CCObject*); // called when the user clicks the next page button
+        void onRecommend(CCObject*); // called when the user clicks the recommend button in the top right corner of the search page, transitions to the recommend layer
 
         ~MyHardestLayer() override; // destructor, used to cancel the web request if the user leaves the page before the demon data finishes loading
             
